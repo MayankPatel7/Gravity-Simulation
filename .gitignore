@@ -1,0 +1,10 @@
+# Binaries
+gravity
+*.o
+*.exe
+build/
+bin/
+
+# OS/System files
+.DS_Store
+Thumbs.db
