@@ -26,7 +26,7 @@ int main(){
     bodies.reserve(100);
     float req_vel = sqrt(G*200/100);
     bodies.emplace_back(540, 360, 10, 10, false, renderer, 0, req_vel);
-    bodies.emplace_back(640, 360, 200, 50, true, renderer, 0, 0);
+    bodies.emplace_back(640, 360, 200, 40, true, renderer, 0, 0);
 
     bool spawning = false;
     float init_mouseX, init_mouseY;
