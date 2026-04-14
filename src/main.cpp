@@ -30,7 +30,7 @@ int main(){
 
     bool spawning = false;
     float init_mouseX, init_mouseY;
-    float vel_scale = 200.0f;
+    float vel_scale = 2.0f;
 
     while(running){
         Uint64 now = SDL_GetPerformanceCounter();
@@ -60,8 +60,8 @@ int main(){
                     float dy = mouseY-init_mouseY;
                     float distance = sqrt(dx*dx + dy*dy);
                     if (distance > 0.1f) { 
-                        float velX = (dx / distance) * vel_scale;
-                        float velY = (dy / distance) * vel_scale;
+                        float velX = -1*(dx * vel_scale);
+                        float velY = -1*(dy * vel_scale);
                         bodies.emplace_back(init_mouseX, init_mouseY, 10, 10, false, renderer, velX, velY);
                     }
                     init_mouseX = 0;
