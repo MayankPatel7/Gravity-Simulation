@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_image.h>
 #include <iostream>
 #include "Body.h"
 #include <vector>
@@ -22,7 +23,14 @@ int main(){
     Uint64 last = SDL_GetPerformanceCounter();
 
     std::vector<Body> bodies;
-    bodies.emplace_back(640, 360, 200, 50, true);
+    bodies.reserve(100);
+    float req_vel = sqrt(G*200/100);
+    bodies.emplace_back(540, 360, 10, 10, false, renderer, 0, req_vel);
+    bodies.emplace_back(640, 360, 200, 50, true, renderer, 0, 0);
+
+    bool spawning = false;
+    float init_mouseX, init_mouseY;
+    float vel_scale = 200.0f;
 
     while(running){
         Uint64 now = SDL_GetPerformanceCounter();
@@ -34,9 +42,30 @@ int main(){
             if(event.type == SDL_EVENT_QUIT) running = false;
             if(event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
                 if(event.button.button == SDL_BUTTON_LEFT){
+                    spawning = true;
+                    SDL_GetMouseState(&init_mouseX, &init_mouseY);
+                }
+                if(event.button.button == SDL_BUTTON_RIGHT){
                     float mouseX, mouseY;
                     SDL_GetMouseState(&mouseX, &mouseY);
-                    bodies.emplace_back(mouseX, mouseY, 50, 10, false);
+                    bodies.emplace_back(mouseX, mouseY, 200, 50, true, renderer, 0, 0);
+                }
+            }
+            if(event.type == SDL_EVENT_MOUSE_BUTTON_UP){
+                if(event.button.button == SDL_BUTTON_LEFT){
+                    spawning = false;
+                    float mouseX, mouseY;
+                    SDL_GetMouseState(&mouseX, &mouseY);
+                    float dx = mouseX-init_mouseX;
+                    float dy = mouseY-init_mouseY;
+                    float distance = sqrt(dx*dx + dy*dy);
+                    if (distance > 0.1f) { 
+                        float velX = (dx / distance) * vel_scale;
+                        float velY = (dy / distance) * vel_scale;
+                        bodies.emplace_back(init_mouseX, init_mouseY, 10, 10, false, renderer, velX, velY);
+                    }
+                    init_mouseX = 0;
+                    init_mouseY = 0;
                 }
             }
         }
@@ -45,15 +74,14 @@ int main(){
         for(size_t i = 0; i < bodies.size(); i++){
             for(size_t j = 0; j < bodies.size(); j++){
                 if(i == j) continue;
-                if(bodies[i].isStar) continue;
-                Vector2D direction = bodies[j].pos - bodies[i].pos;
+                Vector2D direction = Vector2D((bodies[j].pos.x+bodies[j].radius) - (bodies[i].pos.x+bodies[i].radius), (bodies[j].pos.y+bodies[j].radius) - (bodies[i].pos.y+bodies[i].radius));
                 float dist = direction.mag();
                 dist = std::max(dist, 5.0f);
 
                 float forceMag = (G*bodies[i].mass*bodies[j].mass)/(dist*dist);
                 Vector2D force = direction.normalize() * forceMag;
 
-                bodies[i].acc = force/bodies[i].mass;
+                bodies[i].acc += force/bodies[i].mass;
             }
         }
 
@@ -62,9 +90,7 @@ int main(){
         SDL_RenderClear(renderer);
 
         for(auto& body : bodies){
-            if(!body.isStar){
-                body.update(dt);
-            }
+            body.update(dt);
             body.render(renderer);
         }
 
