@@ -97,7 +97,7 @@ int main(){
         float mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
         if(spawning){
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             SDL_RenderLine(renderer, init_mouseX, init_mouseY, mouseX, mouseY);
         }
 
