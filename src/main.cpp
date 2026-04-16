@@ -1,6 +1,9 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_image.h>
 #include <iostream>
+#include <charconv>
+#include <sstream>
+#include <iomanip>
 #include "Body.h"
 #include <vector>
 
@@ -30,6 +33,7 @@ int main(){
 
     bool spawning = false;
     float init_mouseX, init_mouseY;
+    float currentX, currentY;
     float vel_scale = 2.0f;
 
     while(running){
@@ -51,13 +55,15 @@ int main(){
                     bodies.emplace_back(mouseX, mouseY, 200, 50, true, renderer, 0, 0);
                 }
             }
+            if (event.type == SDL_EVENT_MOUSE_MOTION && spawning) {
+                currentX = event.motion.x;
+                currentY = event.motion.y;
+            }
             if(event.type == SDL_EVENT_MOUSE_BUTTON_UP){
                 if(event.button.button == SDL_BUTTON_LEFT){
                     spawning = false;
-                    float mouseX, mouseY;
-                    SDL_GetMouseState(&mouseX, &mouseY);
-                    float dx = mouseX-init_mouseX;
-                    float dy = mouseY-init_mouseY;
+                    float dx = currentX-init_mouseX;
+                    float dy = currentY-init_mouseY;
                     float distance = sqrt(dx*dx + dy*dy);
                     if (distance > 0.1f) { 
                         float velX = -1*(dx * vel_scale);
@@ -97,7 +103,16 @@ int main(){
         float mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
         if(spawning){
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            float vX = -(currentX - init_mouseX) * vel_scale;
+            float vY = -(currentY - init_mouseY) * vel_scale;
+            float dist = sqrt(vX*vX + vY*vY);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            std::string velMag = std::to_string(dist);
+            const char* ch1 = "Velocity: ";
+            const char* ch2 = velMag.c_str();
+            SDL_RenderDebugText(renderer, 5, 5, ch2);
+
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderLine(renderer, init_mouseX, init_mouseY, mouseX, mouseY);
         }
 
