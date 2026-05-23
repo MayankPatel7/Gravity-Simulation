@@ -17,7 +17,7 @@ int main(){
     SDL_Init(SDL_INIT_VIDEO);
     const float G = 5000.0f;
 
-    SDL_Window* window = SDL_CreateWindow("Platformer", 1280, 720, 0);
+    SDL_Window* window = SDL_CreateWindow("Gravity Simulation", 1280, 720, 0);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
 
     bool running = true;
